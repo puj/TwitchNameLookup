@@ -1,29 +1,87 @@
 <html>
+
 <head>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 </head>
 
-<body>  
+<body>
 
-<button id="search">Search</button>
+    <input type="text" id="query"></input>
+    <button id="search">Search</button>
 
-<script type="text/javascript">
-    $('#search').click(function(){ 
-        alert('ajax');
-         $.ajax({ 
-             type: "GET",
-             dataType: "json",
-             headers:{'Client-ID': '9syp9jjt7ro89t5wg39ya039n8e7fn'},
-             url: "https://api.twitch.tv/kraken/streams/",
-             success: function(data){        
-                console.log(JSON.stringify(data));
-             }
-         });
-    });
+    <script type="text/javascript">
+        var streams = [];
+        var filterString = null;
+        load(0, 100);
 
-</script>
+        $('#query').focus();
 
+        $(document).keypress(function(e) {
+            if (e.which == 13) {
+                $('#search').click();
+            }
+        });
 
+        $('#search').click(function() {
+            filterString = $('#query').val();
+            console.log("Setting filter string to  : " + filterString);
+            updateResults();
+        });
+
+        function streamMatchesFilter(stream, str) {
+            if (str == null) {
+                return false;
+            }
+            return (stream.channel.status.toLowerCase().indexOf(str.toLowerCase()) != -1);
+        }
+
+        function updateResults() {
+            $('#display').empty();
+            for (var i = 0; i < streams.length; i++) {
+                if (streamMatchesFilter(streams[i], filterString)) {
+                    addRow(streams[i]);
+                }
+            }
+        }
+
+        function addRow(stream) {
+            var row = $('<div>');
+            row.html("<a href=" + stream.channel.url + ">" + stream.channel.status + "</a>" + " : " + stream.viewers + " viewers");
+            $('#display').append(row);
+        }
+
+        function load(offset, limit) {
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                headers: {'Client-ID': '9syp9jjt7ro89t5wg39ya039n8e7fn'},
+                url: "https://api.twitch.tv/kraken/streams/?offset=" + offset + "&limit=" + limit,
+                success: function(data) {
+                    for (var i = 0; i < data.streams.length; i++) {
+                        var stream = data.streams[i];
+                        var title = stream.channel.status;
+                        var url = stream.channel.url;
+                        var viewerCount = stream.viewers;
+                        streams.push(stream);
+                        if (streamMatchesFilter(stream, filterString)) {
+                            addRow(stream);
+                        }
+                    }
+                    if (offset % 1000 == 0) {
+                        console.log("Loaded " + offset);
+                    }
+                    setTimeout(function() {
+                        load(offset + limit, limit);
+                    }, 32);
+                }
+            });
+        }
+
+    </script>
+
+    <div id="display">
+
+    </div>
 
 </body>
 
