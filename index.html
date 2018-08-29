@@ -13,6 +13,7 @@
          $.ajax({ 
              type: "GET",
              dataType: "json",
+             headers:{'Client-ID': '9syp9jjt7ro89t5wg39ya039n8e7fn'},
              url: "https://api.twitch.tv/kraken/streams/",
              success: function(data){        
                 console.log(JSON.stringify(data));
