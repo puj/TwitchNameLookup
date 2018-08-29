@@ -1,0 +1,29 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+
+<body>  
+
+<button id="search">Search</button>
+
+<script type="text/javascript">
+    $('#search').click(function(){ 
+        alert('ajax');
+         $.ajax({ 
+             type: "GET",
+             dataType: "json",
+             url: "https://api.twitch.tv/kraken/streams/",
+             success: function(data){        
+                console.log(JSON.stringify(data));
+             }
+         });
+    });
+
+</script>
+
+
+
+</body>
+
+</html>
